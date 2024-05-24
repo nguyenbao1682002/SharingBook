@@ -10,50 +10,19 @@ class Model_ToCao extends CI_Model {
 		
 	}
 
-	public function checkNumber($manguoidung)
-	{
-		$sql = "SELECT tocao.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan FROM nguoidung, tocao WHERE tocao.MaNguoiDung = nguoidung.MaNguoiDung AND tocao.MaNguoiDung = ?";
+	public function getReportByIdUser($manguoidung){
+		$sql = "SELECT COALESCE(COUNT(*), 0) AS TrungBinhToCao FROM tocao WHERE TrangThai = 1 AND NanNhan = ?";
 		$result = $this->db->query($sql, array($manguoidung));
-		return $result->num_rows();
+		return $result->result_array()[0]['TrungBinhToCao'];
 	}
 
-	public function getAll($manguoidung, $start = 0, $end = 10){
-		$sql = "SELECT tocao.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan FROM nguoidung, tocao WHERE tocao.MaNguoiDung = nguoidung.MaNguoiDung AND tocao.MaNguoiDung = ? ORDER BY tocao.MaToCao DESC LIMIT ?, ?";
-		$result = $this->db->query($sql, array($manguoidung, $start, $end));
-		return $result->result_array();
-	}
-
-	public function getById($manguoidung,$MaToCao){
-		$sql = "SELECT tocao.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan FROM nguoidung, tocao WHERE tocao.MaNguoiDung = nguoidung.MaNguoiDung AND tocao.MaNguoiDung = ? AND tocao.MaToCao = ?";
-		$result = $this->db->query($sql, array($manguoidung,$MaToCao));
-		return $result->result_array();
-	}
-
-	public function status($trangthai,$MaToCao){
-		$sql = "UPDATE tocao SET TrangThai = ? WHERE MaToCao = ?";
-		$result = $this->db->query($sql, array($trangthai,$MaToCao));
+	public function insert($manguoidung,$nannhan,$tieude,$noidung){
+		$sql = "INSERT INTO `tocao`(`MaNguoiDung`, `NanNhan`, `TieuDe`, `NoiDung`) VALUES (?, ?, ?, ?)";
+		$result = $this->db->query($sql, array($manguoidung,$nannhan,$tieude,$noidung));
 		return $result;
-	}
-
-	public function search($manguoidung, $nannhan, $start = 0, $end = 10){
-		$sql = "SELECT tocao.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan FROM nguoidung, tocao WHERE tocao.MaNguoiDung = nguoidung.MaNguoiDung AND tocao.MaNguoiDung = ? AND tocao.NanNhan = ? ORDER BY tocao.MaToCao DESC LIMIT ?, ?";
-		$result = $this->db->query($sql, array($manguoidung, $nannhan, $start, $end));
-		return $result->result_array();
-	}
-
-	public function checkNumberSearch($manguoidung, $nannhan){
-		$sql = "SELECT tocao.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan FROM nguoidung, tocao WHERE tocao.MaNguoiDung = nguoidung.MaNguoiDung AND tocao.MaNguoiDung = ? AND tocao.NanNhan = ?";
-		$result = $this->db->query($sql, array($manguoidung, $nannhan));
-		return $result->num_rows();
-	}
-
-	public function getUserVictim($mangoidung){
-		$sql = "SELECT * FROM nguoidung WHERE MaNguoiDung = ?";
-		$result = $this->db->query($sql, array($mangoidung));
-		return $result->result_array();
 	}
 
 }
 
-/* End of file Model_ChuyenMuc.php */
-/* Location: ./application/models/Model_ChuyenMuc.php */
+/* End of file Model_ToCao.php */
+/* Location: ./application/models/Model_ToCao.php */

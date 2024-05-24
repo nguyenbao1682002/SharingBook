@@ -10,39 +10,39 @@ class Model_BinhLuan extends CI_Model {
 		
 	}
 
-	public function checkNumber($manguoidung)
-	{
-		$sql = "SELECT binhluan.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan, sach.TenSach, sach.MaSach FROM nguoidung, binhluan, sach WHERE binhluan.TrangThai = 1 AND binhluan.MaNguoiDung = nguoidung.MaNguoiDung AND binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = ?";
+	public function getRateByIdUser($manguoidung){
+		$sql = "SELECT COALESCE(ROUND(AVG(binhluan.SoSao), 1), 0) AS TrungBinhSoSao FROM nguoidung, sach, binhluan WHERE binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = nguoidung.MaNguoiDung AND nguoidung.MaNguoiDung = ? AND binhluan.SoSao != 0;";
 		$result = $this->db->query($sql, array($manguoidung));
-		return $result->num_rows();
+		return $result->result_array()[0]['TrungBinhSoSao'];
 	}
 
-	public function getAll($manguoidung, $start = 0, $end = 10){
-		$sql = "SELECT binhluan.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan, sach.TenSach, sach.MaSach FROM nguoidung, binhluan, sach WHERE binhluan.TrangThai = 1 AND binhluan.MaNguoiDung = nguoidung.MaNguoiDung AND binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = ? ORDER BY binhluan.MaBinhLuan DESC LIMIT ?, ?";
-		$result = $this->db->query($sql, array($manguoidung, $start, $end));
+	public function getRateByIdBook($MaSach){
+		$sql = "SELECT COALESCE(ROUND(AVG(SoSao), 1), 0) AS TrungBinhSoSao FROM binhluan WHERE MaSach = ? AND SoSao != 0";
+		$result = $this->db->query($sql, array($MaSach));
+		$sosao = $result->result_array()[0]['TrungBinhSoSao'];
+
+		return ($sosao / 5) * 100;
+	}
+
+	public function getNumberUserRateByIdBook($MaSach){
+		$sql = "SELECT COALESCE(COUNT(*), 0) AS SoDanhGia FROM binhluan WHERE MaSach = ?";
+		$result = $this->db->query($sql, array($MaSach));
+		return $result->result_array()[0]['SoDanhGia'];
+	}
+
+	public function insert($manguoidung,$masach,$noidung,$sosao,$thoigian){
+		$sql = "INSERT INTO `binhluan`(`MaNguoiDung`, `MaSach`, `NoiDung`, `SoSao`, `ThoiGian`) VALUES (?, ?, ?, ?, ?)";
+		$result = $this->db->query($sql, array($manguoidung,$masach,$noidung,$sosao,$thoigian));
+		return $result;
+	}
+
+	public function getByIdBook($masach){
+		$sql = "SELECT nguoidung.AnhChinh, nguoidung.HoTen, binhluan.* FROM nguoidung, binhluan WHERE nguoidung.MaNguoiDung = binhluan.MaNguoiDung AND binhluan.MaSach = ? ORDER BY ThoiGian ASC";
+		$result = $this->db->query($sql, array($masach));
 		return $result->result_array();
-	}
-
-	public function getById($manguoidung, $MaBinhLuan){
-		$sql = "SELECT binhluan.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan, sach.TenSach, sach.MaSach FROM nguoidung, binhluan, sach WHERE binhluan.TrangThai = 1 AND binhluan.MaNguoiDung = nguoidung.MaNguoiDung AND binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = ? AND binhluan.MaBinhLuan = ?";
-		$result = $this->db->query($sql, array($manguoidung,$MaBinhLuan));
-		return $result->result_array();
-	}
-
-
-	public function search($manguoidung,$tensach, $sosao, $start = 0, $end = 10){
-		$sql = "SELECT binhluan.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan, sach.TenSach, sach.MaSach FROM nguoidung, binhluan, sach WHERE binhluan.TrangThai = 1 AND binhluan.MaNguoiDung = nguoidung.MaNguoiDung AND binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = ? AND (sach.TenSach = ? OR binhluan.SoSao = ?) ORDER BY binhluan.MaBinhLuan DESC LIMIT ?, ?";
-		$result = $this->db->query($sql, array($manguoidung, $tensach, $sosao, $start, $end));
-		return $result->result_array();
-	}
-
-	public function checkNumberSearch($manguoidung,$tensach, $sosao){
-		$sql = "SELECT binhluan.*, nguoidung.MaNguoiDung, nguoidung.TaiKhoan, sach.TenSach, sach.MaSach FROM nguoidung, binhluan, sach WHERE binhluan.TrangThai = 1 AND binhluan.MaNguoiDung = nguoidung.MaNguoiDung AND binhluan.MaSach = sach.MaSach AND sach.MaNguoiDung = ? AND (sach.TenSach = ? OR binhluan.SoSao = ?)";
-		$result = $this->db->query($sql, array($manguoidung, $tensach, $sosao));
-		return $result->num_rows();
 	}
 
 }
 
-/* End of file Model_ChuyenMuc.php */
-/* Location: ./application/models/Model_ChuyenMuc.php */
+/* End of file Model_BinhLuan.php */
+/* Location: ./application/models/Model_BinhLuan.php */
